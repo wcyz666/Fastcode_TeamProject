@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A simplified interface of the original Job class.
@@ -28,12 +29,15 @@ import java.util.List;
 public class Optimizedjob extends Job {
 
     private List<String> inputs;
+    public static AtomicInteger counter = new AtomicInteger();
 
     private String output;
 
     private String jobName;
 
     private int reduceJobs;
+
+    private int mapJobs;
 
     public Optimizedjob(Configuration conf, String input, String output,
                         String jobName) throws IOException {
@@ -44,6 +48,7 @@ public class Optimizedjob extends Job {
         this.output = output;
         this.jobName = jobName;
         this.reduceJobs = 0; // Initalizing to 0 means equal to number of maximum
+        this.mapJobs = 0;
         // reducers
     }
 
@@ -75,6 +80,10 @@ public class Optimizedjob extends Job {
             setNumReduceTasks(reducer_capacity);
         else
             setNumReduceTasks(reduceJobs);
+
+        if (mapJobs != 0) {
+            this.conf.setNumMapTasks(mapJobs);
+        }
 
         setJobName(jobName);
         setJarByClass(Optimizedjob.class);
@@ -131,11 +140,16 @@ public class Optimizedjob extends Job {
 
         System.out.println(String.format("Runtime for Job %s: %d ms", jobName,
                 end - start));
+        System.out.println("The number of mapper: " + Optimizedjob.counter.get());
 
     }
 
     public void setParameter(String key, String value) {
         // TODO Auto-generated method stub
         conf.set(key, value);
+    }
+
+    public void setMapJobs(int mapJobs) {
+        this.mapJobs = mapJobs;
     }
 }

@@ -13,7 +13,9 @@ public class Entry {
 
         if (program.equals("itemcount"))
             itemcount.Driver.main(args);
-
+        else if (program.equals("SON")) {
+            itemcountSON.Driver.main(args);
+        }
         else {
             System.out.println("Unknown program!");
             System.exit(1);

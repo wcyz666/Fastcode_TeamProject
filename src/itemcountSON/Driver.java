@@ -1,4 +1,4 @@
-package itemcount;
+package itemcountSON;
 
 import job.Optimizedjob;
 import org.apache.hadoop.conf.Configuration;
@@ -10,27 +10,29 @@ import java.io.IOException;
 
 public class Driver {
 
-
     public static void main(String args[]) throws Exception {
         SimpleParser parser = new SimpleParser(args);
 
         String input = parser.get("input");
         String output = parser.get("output");
-        String N = parser.get("n");
         String pass1File = parser.get("pass");
-        getJobFeatureVector(input, output, N, pass1File);
+        String N = parser.get("n");
 
+        getJobFeatureVector(input, output, N, pass1File);
     }
 
     private static void getJobFeatureVector(String input, String output, String N, String pass1File)
             throws IOException, ClassNotFoundException, InterruptedException {
         Optimizedjob job = new Optimizedjob(new Configuration(), input, output,
-                "Compute NGram Count");
-
-        job.setClasses(ItemCountMapper.class, ItemCountReducer.class, ItemCountReducer.class);
+                "Compute NGram Count using SON");
+        job.setMapJobs(15);
+        job.setClasses(ItemCountSONPass2Mapper.class, ItemCountSONPass2Reducer.class, ItemCountSONPass2Reducer.class);
         job.setMapOutputClasses(Text.class, IntWritable.class);
         job.setParameter("n", N);
         job.setParameter("pass1File", pass1File);
+        job.setParameter("mapreduce.map.memory.mb", "6000");
         job.run();
     }
+
+
 }
