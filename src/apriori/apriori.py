@@ -1,9 +1,12 @@
+from __future__ import print_function
+
 from operator import add
 
 from pyspark import SparkContext
 
-if __name__ == "__main__":
+import time
 
+if __name__ == "__main__":
     def transacToInt(line):
         nums = line.strip().split(" ")
         for i in range(len(nums)):
@@ -14,8 +17,8 @@ if __name__ == "__main__":
     def conbination1(nums):
         for i in nums:
             yield i,1
+
     def conbination2(nums):
-        #nums = lines.split(" ")
         nums.sort()
         for i in range(len(nums)):
             if nums[i] in find_one:
@@ -32,37 +35,47 @@ if __name__ == "__main__":
                         if (nums[j],nums[k]) in find_two and (nums[i],nums[k]) in find_two:
                             yield (nums[i],nums[j], nums[k]),1
 
+    t = time.time()
 
     MIN = 1500
-    input = "input/data.dat"
+    input = "input/data1.dat"
     sc = SparkContext(appName="apriori")
-    print ("context created============")
-    lines = sc.textFile(input)
-    transaction = lines.map(transacToInt).cache()
+
+    lines = sc.textFile(input, 12)
+    transaction = lines.map(transacToInt).persist()
 
     #list of [(id, count),()]
-    one_data_list = transaction.flatMap(conbination1).reduceByKey(add).filter(lambda (x,y): y > MIN).collect()
+    one_data_list = transaction\
+                    .flatMap(conbination1)\
+                    .reduceByKey(add, 36)\
+                    .filter(lambda (x,y): y > MIN)\
+                    .collect()
 
     find_one = set()
     for key, val in one_data_list:
         find_one.add(key)
 
 
-    #list : [((1, 2), 1), ((1, 3), 1), ((1, 4), 1), ((2, 3), 1), ((2, 4), 1), ((3, 4), 1)]
-    two_data_list = transaction.flatMap(conbination2).reduceByKey(add).filter(lambda (x,y): y > MIN).collect()
+    #list : [ ((1, 4), 7), ((2, 3), 3)]
+    two_data_list = transaction\
+                    .flatMap(conbination2)\
+                    .reduceByKey(add, 36)\
+                    .filter(lambda (x,y): y > MIN)\
+                    .collect()
 
     find_two = set()
     for key,v in two_data_list:
         find_two.add(key)
 
-    #list:
-    three_list = transaction.flatMap(conbination3).reduceByKey(add).filter(lambda (x,y): y > MIN)
+    #rdd : [ ((1, 4, 5), 7),...]
+    three_list = transaction\
+                .flatMap(conbination3)\
+                .reduceByKey(add, 36)\
+                .filter(lambda (x,y): y > MIN)
 
     three_list.saveAsTextFile("final")
-    #rank.collect().foreach(print)
+
+    a = time.time() -t
+    print ("time======= " + str(a))
+
     sc.stop()
-
-
-
-
-
