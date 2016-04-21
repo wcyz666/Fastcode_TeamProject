@@ -1,15 +1,15 @@
 from pyspark import SparkContext
-from operator import add 
-import itertools
 sc = SparkContext("local", "PCY")
 
+from operator import add 
+import itertools
 
-filepath = "input/totaldata"
+filepath = "input/T40I10D100K.dat"
 
 
 lines = sc.textFile(filepath)
 
-MIN_SUPPORT = 1500
+MIN_SUPPORT = 150
 
 charts = lines.map(lambda line: sorted(set(line.split()))).cache()
 
@@ -29,11 +29,11 @@ tuple2 = charts.flatMap(lambda line: itertools.combinations([x for x in line if 
 
 def hash1(param):
     tup, count = param
-    return (tup[0] + tup[1], count)
+    return ((int(tup[0]) - int(tup[1])) % 100, count)
 
 def hash2(param):
     tup, count = param
-    return (int(tup[0]) + int(tup[1]), count)
+    return ((int(tup[0]) + int(tup[1])) % 100, count)
 
 hash_buckets1 = tuple2.map(hash1).reduceByKey(add).filter(lambda (k, v): v > MIN_SUPPORT).map(lambda (k, v): k).collect()
 hash_buckets1 = set(hash_buckets1)
