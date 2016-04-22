@@ -9,10 +9,10 @@ filepath = "input/T40I10D100K.dat"
 
 lines = sc.textFile(filepath)
 
-MIN_SUPPORT = 0
+MIN_SUPPORT = 150
 
-#charts = lines.map(lambda line: sorted(map(int,set(line.split())))).cache()
-charts = sc.parallelize([[3,4,5,6],[2,4,3,5],[3,4,6,2]])
+charts = lines.map(lambda line: sorted(map(int,set(line.split())))).cache()
+#charts = sc.parallelize([[3,4,5,6],[2,3,4,5],[2, 3,4,6]])
 
 def hash1(tup):
     return tup[0] + tup[1]
@@ -21,7 +21,11 @@ def hash2(tup):
     return (tup[0] - tup[1]) % 900
 
 
-support_item = charts.flatMap(lambda line: line).map(lambda item: (item, 1).reduceByKey(add).filter(lambda x: x[1] > MIN_SUPPORT).map(lambda a: a[0])
+support_item = charts.flatMap(lambda line: line)        \
+                .map(lambda item: (item, 1))            \
+                .reduceByKey(add)                       \
+                .filter(lambda x: x[1] > MIN_SUPPORT)   \
+                .map(lambda a: a[0])
 
 support_set = set(support_item.collect())
 
@@ -40,10 +44,10 @@ tuple2 = charts.repartition(2).flatMap(generate2tuple)      \
                 .reduceByKey(add)                           \
                 .filter(lambda (k, v): v > MIN_SUPPORT)
 
-hash_buckets1_rdd = tuple2.map(lambda (k, v): hash1(k), v).reduceByKey(add).filter(lambda (k, v): v > MIN_SUPPORT).map(lambda (k, v): k).collect()
+hash_buckets1_rdd = tuple2.map(lambda (k, v): (hash1(k), v)).reduceByKey(add).filter(lambda (k, v): v > MIN_SUPPORT).map(lambda (k, v): k)
 hash_buckets1 = set(hash_buckets1_rdd.collect()) 
 
-hash_buckets2_rdd = tuple2.map(lambda (k, v): hash2(k), v).reduceByKey(add).filter(lambda (k, v): v > MIN_SUPPORT).map(lambda (k, v): k).collect()
+hash_buckets2_rdd = tuple2.map(lambda (k, v): (hash2(k), v)).reduceByKey(add).filter(lambda (k, v): v > MIN_SUPPORT).map(lambda (k, v): k)
 hash_buckets2 = set(hash_buckets2_rdd.collect())
 
 tuple2 = tuple2.filter(lambda (k, v): hash1(k) in hash_buckets1 and hash2(k) in hash_buckets2).map(lambda (k, v): k)
@@ -66,7 +70,7 @@ def generate3tuple(chart):
 
 tuple3s = charts.repartition(36).flatMap(generate3tuple).reduceByKey(add).filter(lambda (k, v): v > MIN_SUPPORT).collect()
 
-top100 = sorted(map(lambda (k,v): (v, k), tuple3s))[:100]
+top100 = sorted(map(lambda (k,v): (v, k), tuple3s), reverse=True)[:100]
 
 for t in top100:
     print t
