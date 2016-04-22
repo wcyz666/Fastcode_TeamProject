@@ -49,11 +49,9 @@ if __name__ == "__main__":
                     .flatMap(conbination1)\
                     .reduceByKey(add, 36)\
                     .filter(lambda (x,y): y > MIN)\
-                    .collect()
 
-    find_one = set()
-    for key, val in one_data_list:
-        find_one.add(key)
+    find_one = set(one_data_list.keys().collect())
+
 
 
     #list : [ ((1, 4), 7), ((2, 3), 3)]
@@ -61,11 +59,9 @@ if __name__ == "__main__":
                     .flatMap(conbination2)\
                     .reduceByKey(add, 36)\
                     .filter(lambda (x,y): y > MIN)\
-                    .collect()
 
-    find_two = set()
-    for key,v in two_data_list:
-        find_two.add(key)
+    find_two = set(two_data_list.keys().collect())
+
 
     #rdd : [ ((1, 4, 5), 7),...]
     three_list = transaction\
