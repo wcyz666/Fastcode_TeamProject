@@ -21,18 +21,18 @@ if __name__ == "__main__":
     def conbination2(nums):
         nums.sort()
         for i in range(len(nums)):
-            if nums[i] in find_one:
+            if nums[i] in setOfFrequentItem1:
                 for j in range(i + 1,len(nums)):
-                    if nums[j] in find_one:
+                    if nums[j] in setOfFrequentItem1:
                         yield (nums[i],nums[j]),1
 
     def conbination3(nums):
         nums.sort()
         for i in range(len(nums)):
             for j in range(i + 1,len(nums)):
-                if (nums[i],nums[j]) in find_two:
+                if (nums[i],nums[j]) in setOfFrequentItem2:
                     for k in range(j + 1, len(nums)):
-                        if (nums[j],nums[k]) in find_two and (nums[i],nums[k]) in find_two:
+                        if (nums[j],nums[k]) in setOfFrequentItem2 and (nums[i],nums[k]) in setOfFrequentItem2:
                             yield (nums[i],nums[j], nums[k]),1
 
     t = time.time()
@@ -45,31 +45,31 @@ if __name__ == "__main__":
     transaction = lines.map(transacToInt).persist()
 
     #list of [(id, count),()]
-    one_data_list = transaction\
+    frequentItem1 = transaction\
                     .flatMap(conbination1)\
                     .reduceByKey(add, 36)\
                     .filter(lambda (x,y): y > MIN)\
 
-    find_one = set(one_data_list.keys().collect())
+    setOfFrequentItem1 = set(frequentItem1.keys().collect())
 
 
 
     #list : [ ((1, 4), 7), ((2, 3), 3)]
-    two_data_list = transaction\
+    frequentItem2 = transaction\
                     .flatMap(conbination2)\
                     .reduceByKey(add, 36)\
                     .filter(lambda (x,y): y > MIN)\
 
-    find_two = set(two_data_list.keys().collect())
+    setOfFrequentItem2 = set(frequentItem2.keys().collect())
 
 
     #rdd : [ ((1, 4, 5), 7),...]
-    three_list = transaction\
+    frequentItem3 = transaction\
                 .flatMap(conbination3)\
                 .reduceByKey(add, 36)\
                 .filter(lambda (x,y): y > MIN)
 
-    three_list.saveAsTextFile("final")
+    frequentItem3.saveAsTextFile("final")
 
     a = time.time() -t
     print ("time======= " + str(a))
