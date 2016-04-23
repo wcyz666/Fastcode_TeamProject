@@ -45,29 +45,31 @@ if __name__ == "__main__":
     transaction = lines.map(transacToInt).persist()
 
     #list of [(id, count),()]
-    frequentItem1 = transaction\
-                    .flatMap(conbination1)\
-                    .reduceByKey(add, 36)\
-                    .filter(lambda (x,y): y > MIN)\
+    frequentItem1 = transaction            \
+                    .flatMap(conbination1) \
+                    .reduceByKey(add, 36)  \
+                    .filter(lambda (x,y): y > MIN)
 
     setOfFrequentItem1 = set(frequentItem1.keys().collect())
 
 
 
     #list : [ ((1, 4), 7), ((2, 3), 3)]
-    frequentItem2 = transaction\
-                    .flatMap(conbination2)\
-                    .reduceByKey(add, 36)\
-                    .filter(lambda (x,y): y > MIN)\
+    frequentItem2 = transaction            \
+                    .flatMap(conbination2) \
+                    .reduceByKey(add, 36)  \
+                    .filter(lambda (x,y): y > MIN)
 
     setOfFrequentItem2 = set(frequentItem2.keys().collect())
 
 
     #rdd : [ ((1, 4, 5), 7),...]
-    frequentItem3 = transaction\
-                .flatMap(conbination3)\
-                .reduceByKey(add, 36)\
+    frequentItem3 = transaction        \
+                .flatMap(conbination3) \
+                .reduceByKey(add, 36)  \
                 .filter(lambda (x,y): y > MIN)
+
+
 
     frequentItem3.saveAsTextFile("final")
 
