@@ -10,11 +10,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashSet;
-import java.util.List;
 
-import static util.CombinationGenerator.combine;
-
-public class AprioriPass2Mapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+public class AprioriPass3Mapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 
     private final IntWritable ONE = new IntWritable(1);
     private HashSet<String> candidates;
@@ -33,11 +30,13 @@ public class AprioriPass2Mapper extends Mapper<LongWritable, Text, Text, IntWrit
 		 */
 
         for (int i = 0; i < words.length; i++) {
-            if (candidates.contains(words[i])) {
-                for (int j = i + 1; j < words.length; j++) {
-                    if (candidates.contains(words[j])) {
-                        word.set(words[i] + " " + words[j]);
-                        context.write(word, ONE);
+            for(int k = i + 1; k < words.length; k++) {
+                if (candidates.contains(words[i]+" "+ words[k])) {
+                    for (int j = k + 1; j < words.length; j++) {
+                        if (candidates.contains(words[k] + " " + words[j]) && candidates.contains(words[i] + " " + words[j])) {
+                            word.set(words[i] + " " + words[k]+" "+ words[j]);
+                            context.write(word, ONE);
+                        }
                     }
                 }
             }
@@ -49,7 +48,7 @@ public class AprioriPass2Mapper extends Mapper<LongWritable, Text, Text, IntWrit
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
-        String pass1File = "tmp/pass1";
+        String pass1File = "tmp/pass2";
         candidates = new HashSet<>();
         BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(FileUtil.read(pass1File)));

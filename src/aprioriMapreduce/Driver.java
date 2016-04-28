@@ -21,6 +21,11 @@ public class Driver {
         //String pass1File = parser.get("pass");
         //String N = parser.get("n");
 
+
+
+        /*
+        TO change the pass here
+         */
         getPass1Item(input, "tmp/pass1");
         //getPass2Item(input, "tmp/pass1", "tmp/pass2");
         //getPass3Item(input, "tmp/pass2", output);
@@ -29,28 +34,22 @@ public class Driver {
     private static void getPass1Item(String input, String output)
             throws IOException, ClassNotFoundException, InterruptedException {
         Optimizedjob job = new Optimizedjob(new Configuration(), input, output,
-                "Compute NGram Count using SON");
+                "Compute Frequent Itemset pass 1");
         //job.setMapJobs(15);
         job.setClasses(AprioriPass1Mapper.class, AprioriPass1Reducer.class, AprioriPass1Reducer.class);
-        //job.setClasses(ItemCountSONPass2Mapper.class, ItemCountSONPass2Reducer.class, ItemCountSONPass2Reducer.class);
         job.setMapOutputClasses(IntWritable.class, NullWritable.class);
-        //job.setParameter("n", N);
-        //job.setParameter("pass1File", pass1File);
         job.setParameter("mapreduce.map.memory.mb", "6000");
         job.run();
     }
 
 
-    /*
     private static void getPass2Item(String input, String preSet, String output)
             throws IOException, ClassNotFoundException, InterruptedException {
         Optimizedjob job = new Optimizedjob(new Configuration(), input, output,
-                "Compute NGram Count using SON");
+                "Compute Frequent Itemset pass 2");
         //job.setMapJobs(15);
         job.setClasses(AprioriPass2Mapper.class, AprioriPass2Reducer.class, AprioriPass2Reducer.class);
         job.setMapOutputClasses(IntWritable.class, NullWritable.class);
-        //job.setParameter("n", N);
-        //job.setParameter("pass1File", pass1File);
         job.setParameter("mapreduce.map.memory.mb", "6000");
         job.run();
     }
@@ -58,16 +57,14 @@ public class Driver {
     private static void getPass3Item(String input, String preSet, String output)
             throws IOException, ClassNotFoundException, InterruptedException {
         Optimizedjob job = new Optimizedjob(new Configuration(), input, output,
-                "Compute NGram Count using SON");
+                "Compute Frequent Itemset pass 3");
         //job.setMapJobs(15);
         job.setClasses(AprioriPass3Mapper.class, AprioriPass3Reducer.class, AprioriPass3Reducer.class);
         job.setMapOutputClasses(IntWritable.class, NullWritable.class);
-        //job.setParameter("n", N);
-        //job.setParameter("pass1File", pass1File);
         job.setParameter("mapreduce.map.memory.mb", "6000");
         job.run();
     }
-*/
+
 
 
 }
