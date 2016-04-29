@@ -15,6 +15,8 @@ public class Entry {
             itemcount.Driver.main(args);
         else if (program.equals("SON")) {
             itemcountSON.Driver.main(args);
+        } else if (program.equals("Apriori")) {
+            aprioriMapreduce.Driver.main(args);
         }
         else {
             System.out.println("Unknown program!");
